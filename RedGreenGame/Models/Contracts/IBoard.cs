@@ -13,5 +13,9 @@
         void Populate();
 
         public void NextGeneration();
+
+        public void Print();
+
+        public void SetDimensions(string input);
     }
 }

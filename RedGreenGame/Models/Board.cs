@@ -30,8 +30,34 @@
         }
 
         //Rows and columns number of the board can be read from outside, but cannot be changed
-        public int Row { get; private set; }
-        public int Col { get; private set; }
+        public int Row
+        {
+            get => this.Row;
+
+            private set
+            {
+                if (value <=0)
+                {
+                    throw new IndexOutOfRangeException("Row value must be a positive number!");
+                }
+
+                this.Row = value;
+            }
+        }
+        public int Col
+        {
+            get => this.Col;
+
+            private set
+            {
+                if (value <= 0)
+                {
+                    throw new IndexOutOfRangeException("Column value must be a positive number!");
+                }
+
+                this.Col = value;
+            }
+        }
 
         public string[][] Field { get; set; }
 
@@ -47,6 +73,15 @@
                     .ToCharArray()
                     .Select(s => s.ToString())
                     .ToArray();
+
+                foreach (var value in currentRowValue)
+                {
+                    if (value!= Helper.Green || value!=Helper.Red)
+                    {
+                        throw new ArgumentException("Input must consist of green and red values only");
+                    }
+                }
+
                 this.Field[currentRow] = currentRowValue;
             }
         }
@@ -64,11 +99,11 @@
 
                         //if a cell meets the criteria to turn green, adds it to the list of red cells to be converted to green
                         if (shouldTurnToGreen)
-                        {                            
-                           var cell = new Cell();
-                           cell.X = currentRow;
-                           cell.Y = currentCol;
-                           this.greenCells.Add(cell);
+                        {
+                            var cell = new Cell();
+                            cell.X = currentRow;
+                            cell.Y = currentCol;
+                            this.greenCells.Add(cell);
                         }
                     }
                     else //it's currently green
@@ -81,12 +116,12 @@
                             var cell = new Cell();
                             cell.X = currentRow;
                             cell.Y = currentCol;
-                            this.redCells.Add(cell);                            
+                            this.redCells.Add(cell);
                         }
                     }
                 }
             }
-           this.UpdateField();
+            this.UpdateField();
         }
 
         //Prints the board on the console
@@ -99,12 +134,27 @@
         }
 
         //Sets the board width and height
-        public void SetDimensions()
+        public void SetDimensions(string input)
         {
-            var dimensions = reader.Read()
+            var dimensions = new int[2];
+
+            try
+            {
+                dimensions = input
                 .Split(", ", StringSplitOptions.RemoveEmptyEntries)
                 .Select(int.Parse)
-                .ToList();
+                .ToArray();
+            }
+            catch (Exception)
+            {
+                throw new FormatException("Input could not be parsed!");
+            }
+
+            if (dimensions.Length != 2)
+            {
+                throw new InvalidOperationException("Input must contain three numbers!");
+            }
+           
 
             this.Row = dimensions[0];
             this.Col = dimensions[1];
@@ -136,8 +186,8 @@
             //If the cell has 2, 3 or 6 green neighbours, it should stay the same; otherwise, it should become red
             var totalGreenNeighboursCount = FindGreenNeighboursCount(currentRow, currentCol);
 
-            if (totalGreenNeighboursCount == Helper.GreenNeighbourValueOne 
-                || totalGreenNeighboursCount == Helper.GreenNeighbourValueTwo 
+            if (totalGreenNeighboursCount == Helper.GreenNeighbourValueOne
+                || totalGreenNeighboursCount == Helper.GreenNeighbourValueTwo
                 || totalGreenNeighboursCount == Helper.GreenNeighbourValueThree)
             {
                 return false;
@@ -155,7 +205,7 @@
             //If the cell has 3 or 6 green neighbours, it should turn to green
             var totalGreenNeighboursCount = FindGreenNeighboursCount(currentRow, currentCol);
 
-            if (totalGreenNeighboursCount == Helper.RedNeighbourValueOne 
+            if (totalGreenNeighboursCount == Helper.RedNeighbourValueOne
                 || totalGreenNeighboursCount == Helper.RedNeighbourValueTwo)
             {
                 return true;
@@ -209,6 +259,6 @@
             return true;
         }
 
-        
+
     }
 }
