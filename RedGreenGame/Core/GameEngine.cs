@@ -33,22 +33,26 @@
 
             var input = this.reader.Read();
 
-            this.board.SetDimensions(input);
+           this.writer.Write(this.board.SetDimensions(input)); 
 
 
             //Fill board with first Generation data
             writer.Write(ConsoleMessages.EnterRedAndGreenPlayersPositions);
 
-            this.board.Populate();
+            for (int row = 0; row < this.board.Row; row++)
+            {
+                input = this.reader.Read();
 
-            //Find which cell is to be tracked and how many rotations there are
+                this.writer.Write(this.board.PopulateSingleRow(input, row));
+            }            
+
             writer.Write(ConsoleMessages.EnterStartPositionAndRotations);
-            this.ReadNextConditions();
 
-            //Check if the cell to track is green in the first Generation
+            input = this.reader.Read();
+            this.ReadPlayerPositionAndNumberOfRotations(input);
+
             var isGreen = this.CheckIfCellIsGreen();
-
-            //Check if the cell to track is green in the initial Generation and increases the number of times the cell is green
+            
             if (isGreen)
             {
                 this.numberOfGreenGenerations++;
@@ -59,6 +63,18 @@
 
             this.writer.Write(string.Format(ConsoleMessages.FinalOutput, numberOfGreenGenerations, this.rotations + 1));
         }
+
+        //The tracked cell row and column number and total number of rotations are given on a single row
+        //This method reads the input and assigns the correct values to the fields
+        public void ReadPlayerPositionAndNumberOfRotations(string input)
+        {           
+            var result = this.ValidateInput(input);
+
+            this.rowX = result[0];
+            this.colX = result[1];
+            this.rotations = result[2];
+        }
+
 
         //Changes the board generations by the number specified
         private void Rotate()
@@ -84,20 +100,7 @@
             return this.board.Field[this.rowX][this.colX] == Helper.Green;
         }
 
-        //The tracked cell row and column number and total number of rotations are given on a single row
-        //This method reads the input and assigns the correct values to the fields
-        private void ReadNextConditions()
-        {
-            var input = this.reader
-                .Read();
-
-            var result = this.ValidateInput(input);
-           
-            this.rowX = result[0];
-            this.colX = result[1];
-            this.rotations = result[2];
-        }
-
+       
         private int[] ValidateInput(string input)
         {
             var result = new int[3];

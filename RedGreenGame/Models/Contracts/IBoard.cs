@@ -10,12 +10,12 @@
 
         public string[][] Field { get; set; }
 
-        void Populate();
+        public string PopulateSingleRow(string input, int row);
 
         public void NextGeneration();
 
         public void Print();
 
-        public void SetDimensions(string input);
+        public string SetDimensions(string input);
     }
 }

@@ -14,6 +14,8 @@
     {
         private readonly IReader reader;
         private readonly IWriter writer;
+        private int row;
+        private int col;
 
         //Keeps track of green cells that should become red in this generation
         private IList<Cell> redCells;
@@ -32,21 +34,21 @@
         //Rows and columns number of the board can be read from outside, but cannot be changed
         public int Row
         {
-            get => this.Row;
+            get => this.row;
 
             private set
             {
-                if (value <=0)
+                if (value <= 0)
                 {
                     throw new IndexOutOfRangeException("Row value must be a positive number!");
                 }
 
-                this.Row = value;
+                this.row = value;
             }
         }
         public int Col
         {
-            get => this.Col;
+            get => this.col;
 
             private set
             {
@@ -55,35 +57,31 @@
                     throw new IndexOutOfRangeException("Column value must be a positive number!");
                 }
 
-                this.Col = value;
+                this.col = value;
             }
         }
 
         public string[][] Field { get; set; }
 
         //Initiates field and fills it with values from user's input
-        public void Populate()
+        public string PopulateSingleRow(string input, int row)
         {
-            this.Field = new string[this.Row][];
-
-            for (int currentRow = 0; currentRow < this.Row; currentRow++)
-            {
-                var currentRowValue = this.reader
-                    .Read()
+                var currentRowValue = input
                     .ToCharArray()
                     .Select(s => s.ToString())
                     .ToArray();
 
                 foreach (var value in currentRowValue)
                 {
-                    if (value!= Helper.Green || value!=Helper.Red)
+                    if (value!= Helper.Green && value!=Helper.Red)
                     {
-                        throw new ArgumentException("Input must consist of green and red values only");
+                        throw new ArgumentException("Input must consist of green and red values only!");
                     }
                 }
 
-                this.Field[currentRow] = currentRowValue;
-            }
+                this.Field[row] = currentRowValue;
+
+                return $"Row {row +1} populated successfully";            
         }
 
         //Iterates through the board, checks which cells should be changed and updates the board
@@ -134,7 +132,7 @@
         }
 
         //Sets the board width and height
-        public void SetDimensions(string input)
+        public string SetDimensions(string input)
         {
             var dimensions = new int[2];
 
@@ -145,19 +143,22 @@
                 .Select(int.Parse)
                 .ToArray();
             }
-            catch (Exception)
+            catch (FormatException)
             {
                 throw new FormatException("Input could not be parsed!");
             }
 
             if (dimensions.Length != 2)
             {
-                throw new InvalidOperationException("Input must contain three numbers!");
+                throw new InvalidOperationException("Input must contain two numbers!");
             }
            
 
             this.Row = dimensions[0];
             this.Col = dimensions[1];
+            this.Field = new string[this.Row][];
+
+            return "Board width and height are set successfully.";
         }
 
 
